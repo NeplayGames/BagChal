@@ -6,7 +6,9 @@ namespace NeplayGame.BagChal
 {
     public class GenerateBoard
     {
-        private GameObject[] spawnObjs = new GameObject[25];
+        private SpawnPoint[] spawnObjs = new SpawnPoint[25];
+        public SpawnPoint[] TigerSpawnPoint { get; private set; } = new SpawnPoint[4];
+
         public GenerateBoard(GameObject spawnPointGO, float distance, Material lineMaterial)
         {
             CreateBaghChalBoard(spawnPointGO, distance, lineMaterial);
@@ -46,31 +48,53 @@ namespace NeplayGame.BagChal
 
         private void CreateBaghChalBoard(GameObject spawnPointGO, float distance, Material lineMaterial)
         {
+            AddMovableSpawnPoint(lineMaterial, InitializeSpawnPoint(spawnPointGO, distance));
+            AddTigerSpawnPoint();
+        }
+
+        private int InitializeSpawnPoint(GameObject spawnPointGO, float distance)
+        {
             int i = 0;
             int j = 0;
             int arrayIndex = 0;
             foreach (var point in adjacency)
             {
-                spawnObjs[arrayIndex++] = GameObject.Instantiate(spawnPointGO, new Vector3(i++ * distance, 0, j * distance), spawnPointGO.transform.rotation);
+                spawnObjs[arrayIndex++] = GameObject.Instantiate(spawnPointGO, new Vector3(i++ * distance, 0, j * distance),
+                 spawnPointGO.transform.rotation).GetComponent<SpawnPoint>();
                 if (i == 5)
                 {
                     i = 0;
                     j++;
                 }
             }
+
+            return arrayIndex;
+        }
+
+        private void AddMovableSpawnPoint(Material lineMaterial, int arrayIndex)
+        {
             for (int k = 0; k < arrayIndex; k++)
             {
-                SpawnPoint spawnPoint = spawnObjs[k].GetComponent<SpawnPoint>();
+                SpawnPoint spawnPoint = spawnObjs[k];
                 List<int> adj = adjacency[k];
                 List<SpawnPoint> spawnPoints = new();
                 foreach (var index in adj)
                 {
-                    spawnPoints.Add(spawnObjs[index].GetComponent<SpawnPoint>());
+                    spawnPoints.Add(spawnObjs[index]);
                     CreateLine(spawnPoint.transform.position, spawnObjs[index].transform.position, lineMaterial);
                 }
                 spawnPoint.movablePoint = spawnPoints;
             }
         }
+
+        private void AddTigerSpawnPoint()
+        {
+            TigerSpawnPoint[0] = spawnObjs[0];
+            TigerSpawnPoint[1] = spawnObjs[4];
+            TigerSpawnPoint[2] = spawnObjs[20];
+            TigerSpawnPoint[3] = spawnObjs[24];
+        }
+
         private void CreateLine(Vector3 start, Vector3 end, Material lineMaterial)
         {
             GameObject lineObj = new GameObject("DynamicLine");

@@ -6,11 +6,13 @@ namespace NeplayGame.BagChal
     {
 
         [SerializeField] private GameObject spawnPointGO;
+        [SerializeField] private GameObject tiger;
+        [SerializeField] private GameObject goat;
         [SerializeField] private Material lineMaterial;
         [SerializeField, Range(1, 100)] private float consecutiveDistance;
         void Start()
         {
-            new GenerateBoard(spawnPointGO, consecutiveDistance, lineMaterial);
+           new NPCManager(new GenerateBoard(spawnPointGO, consecutiveDistance, lineMaterial), tiger);
         }
     }
 }
