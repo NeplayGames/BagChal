@@ -1,4 +1,5 @@
 using UnityEngine;
+using Ursaanimation.CubicFarmAnimals;
 namespace NeplayGame.BagChal.Entity
 {
     public class TigerEntity : EntityController

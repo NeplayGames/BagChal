@@ -4,17 +4,53 @@ namespace NeplayGame.BagChal.Entity
 {
     public abstract class EntityController : MonoBehaviour
     {
+        [SerializeField] private Animator animator;
+
         public abstract EEntity eEntity { get; }
-        public void Move(Vector3 position)
+        private Vector3 startPosition;
+        private Vector3 targetPosition;
+        private float duration;
+        private float elapsedTime;
+        private bool isMoving = false;
+
+        void Update()
         {
-            
+            if (isMoving)
+            {
+                elapsedTime += Time.deltaTime;
+                float t = elapsedTime / duration;
+                t = Mathf.Clamp01(t);  // Keep t between 0 and 1
+
+                transform.position = Vector3.Lerp(startPosition, targetPosition, t);
+
+                // Stop when we reach the endpoint
+                if (t >= 1f)
+                {
+                    isMoving = false;
+                    animator.SetBool("Movement", false);
+                }
+            }
+        }
+
+        public void MoveTo(Vector3 destination, float speed = 6)
+        {
+            startPosition = transform.position;
+            targetPosition = destination;
+
+            // Calculate duration using distance / speed
+            float distance = Vector3.Distance(startPosition, targetPosition);
+            duration = distance / speed;
+
+            elapsedTime = 0f;
+            isMoving = true;
+            animator.SetBool("Movement", true);
         }
     }
+}
 
-    public enum EEntity
-    {
-        None = 0,
-        Goat = 1,
-        Tiger = 2,
-    }
+public enum EEntity
+{
+    None = 0,
+    Goat = 1,
+    Tiger = 2,
 }

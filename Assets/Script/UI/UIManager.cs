@@ -6,9 +6,9 @@ namespace NeplayGame.BagChal.UI
     {
         [SerializeField] private TextMeshProUGUI turnInfoTMP;
 
-        public void SetTurnInfoText(bool goat)
+        public void SetTurnInfoText(EEntity eEntity)
         {
-            turnInfoTMP.text = goat ? "Goat Turn" : "Tiger Turn";
+            turnInfoTMP.text = eEntity == EEntity.Goat ? "Goat Turn" : "Tiger Turn";
         }
     }
 }
