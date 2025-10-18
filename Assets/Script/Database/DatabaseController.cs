@@ -1,6 +1,8 @@
 using UnityEngine;
-
-public class DatabaseController
+namespace NeplayGame.BagChal
 {
-    
+    public class DatabaseController
+    {
+
+    }
 }

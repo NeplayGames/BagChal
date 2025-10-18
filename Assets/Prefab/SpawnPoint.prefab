@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 3426711630523968748}
   - component: {fileID: 3331977123304398475}
   - component: {fileID: 2024764272030172355}
-  - component: {fileID: 8521175665971882331}
   - component: {fileID: -7210159086909582910}
+  - component: {fileID: 279729074265976007}
   m_Layer: 0
   m_Name: SpawnPoint
   m_TagString: Untagged
@@ -88,8 +88,20 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &8521175665971882331
-CapsuleCollider:
+--- !u!114 &-7210159086909582910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5606375688140262554}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c37abe2f98e9238468b83a6e1fc74b03, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!65 &279729074265976007
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -106,20 +118,6 @@ CapsuleCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5000001
-  m_Height: 2
-  m_Direction: 1
+  serializedVersion: 3
+  m_Size: {x: 3, y: 2, z: 3}
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
---- !u!114 &-7210159086909582910
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5606375688140262554}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c37abe2f98e9238468b83a6e1fc74b03, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
