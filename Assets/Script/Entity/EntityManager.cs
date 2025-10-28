@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using NeplayGame.BagChal.Entity;
 using NeplayGame.BagChal.UI;
+using Unity.VisualScripting;
 using UnityEngine;
 namespace NeplayGame.BagChal
 {
     public class EntityManager : IDisposable
     {
         private GameObject goat;
-        private UIManager uIManager;
         private int totalGoat = 0;
         private EEntity CurrentEntity
         {
@@ -19,31 +19,38 @@ namespace NeplayGame.BagChal
             set
             {
                 currentEntity = value;
-                uIManager.SetTurnInfoText(currentEntity);
+                OnChangeTurn?.Invoke(currentEntity);
             }
         }
         private EEntity currentEntity;
         private SpawnPoint obtainEntitySpawnPoint;
         Dictionary<SpawnPoint, EntityController> entitySpawnPoints = new();
         public event Action GoatKill;
+        public event Action<EEntity> OnChangeTurn;
         private InputManager inputManager;
-        public EntityManager(GenerateBoard generateBoard, GameObject tiger, GameObject goat, UIManager uIManager, InputManager inputManager)
+        public EntityManager(GenerateBoard generateBoard, GameObject tiger, GameObject goat, InputManager inputManager)
         {
-            this.uIManager = uIManager;
             this.goat = goat;
             foreach (var tigerSpawnPoint in generateBoard.TigerSpawnPoint)
             {
                 EntityController entityController = GameObject.Instantiate(tiger, tigerSpawnPoint.transform.position + Vector3.up, tiger.transform.rotation).GetComponent<EntityController>();
                 entitySpawnPoints.Add(tigerSpawnPoint, entityController);
+                entityController.MovementCompleted += CanMoveNext;
             }
             this.inputManager = inputManager;
             inputManager.TouchEntity += CurrentTouchEntity;
             CurrentEntity = EEntity.Goat;
         }
 
+        private void CanMoveNext()
+        {
+            inputManager.TouchEntity += CurrentTouchEntity;
+        }
+
         private void CurrentTouchEntity(SpawnPoint spawnPoint)
         {
-            if (totalGoat <= 20)
+
+            if (totalGoat < 20)
             {
                 if (CurrentEntity == EEntity.Goat)
                 {
@@ -67,20 +74,19 @@ namespace NeplayGame.BagChal
             }
             if (!obtainEntitySpawnPoint)
                 return;
-            if (!entitySpawnPoints.ContainsKey(spawnPoint))
+
+            if (CanMove(obtainEntitySpawnPoint, spawnPoint))
             {
-                if (CanMove(obtainEntitySpawnPoint, spawnPoint))
-                {
-                    entitySpawnPoints[obtainEntitySpawnPoint].MoveTo(spawnPoint.transform.position);
-                    entitySpawnPoints.Add(spawnPoint, entitySpawnPoints[obtainEntitySpawnPoint]);
-                    entitySpawnPoints.Remove(obtainEntitySpawnPoint);
-                    obtainEntitySpawnPoint = null;
-                    CurrentEntity = CurrentEntity == EEntity.Goat ? EEntity.Tiger : EEntity.Goat;
-                }
+                entitySpawnPoints[obtainEntitySpawnPoint].MoveTo(spawnPoint.transform.position);
+                entitySpawnPoints.Add(spawnPoint, entitySpawnPoints[obtainEntitySpawnPoint]);
+                entitySpawnPoints.Remove(obtainEntitySpawnPoint);
+                obtainEntitySpawnPoint = null;
+                CurrentEntity = CurrentEntity == EEntity.Goat ? EEntity.Tiger : EEntity.Goat;
+                inputManager.TouchEntity -= CurrentTouchEntity;
             }
         }
 
-        private bool CanMove(SpawnPoint obtainEntitySpawnPoint, SpawnPoint spawnPoint)
+        public bool CanMove(SpawnPoint obtainEntitySpawnPoint, SpawnPoint spawnPoint)
         {
             if (obtainEntitySpawnPoint.movablePoint.Contains(spawnPoint))
             {
@@ -92,10 +98,12 @@ namespace NeplayGame.BagChal
                 {
                     if (entitySpawnPoints.ContainsKey(spawnP) && entitySpawnPoints[spawnP].eEntity == EEntity.Goat)
                     {
-                        foreach (var neighbourSpawnP in spawnP.movablePoint)
+                        if (spawnP.movablePoint.Contains(spawnPoint))
                         {
-                            if (!entitySpawnPoints.ContainsKey(neighbourSpawnP) && AreCollinear(neighbourSpawnP.transform, spawnP.transform, obtainEntitySpawnPoint.transform))
+                            if (AreCollinear(spawnPoint.transform, spawnP.transform, obtainEntitySpawnPoint.transform))
                             {
+                                TigerEntity tigerEntity = (TigerEntity)entitySpawnPoints[obtainEntitySpawnPoint];
+                                tigerEntity.SetGoat((GoatEntity)entitySpawnPoints[spawnP]);
                                 KillGoat(spawnP);
                                 return true;
                             }
@@ -110,7 +118,7 @@ namespace NeplayGame.BagChal
         {
             EntityController entityController = entitySpawnPoints[spawnP];
             entitySpawnPoints.Remove(spawnP);
-            GameObject.Destroy(entityController.gameObject);
+            //GameObject.Destroy(entityController.gameObject);
             GoatKill?.Invoke();
         }
 
@@ -127,12 +135,12 @@ namespace NeplayGame.BagChal
 
             // Cross product in 2D -> scalar (z-component of 3D cross product)
             float cross = v1.x * v2.y - v1.y * v2.x;
-
+            Debug.Log(cross);
             // If cross = 0 (or very close), they're collinear
             return Mathf.Approximately(cross, 0f);
         }
 
-        public static bool IsAlignedOnAxis(Transform objA, Transform objB, Transform objC)
+        public bool IsAlignedOnAxis(Transform objA, Transform objB, Transform objC)
         {
             // ✅ Same X plane (all share the same X value)
             bool sameX = Mathf.Approximately(objA.position.x, objB.position.x) &&
@@ -156,6 +164,36 @@ namespace NeplayGame.BagChal
         public void Dispose()
         {
             inputManager.TouchEntity -= CurrentTouchEntity;
+        }
+
+        public bool CheckTigerLock()
+        {
+            foreach (var entityController in entitySpawnPoints)
+            {
+                if (entityController.Value.eEntity == EEntity.Tiger)
+                {
+                    foreach (var spawnP in entityController.Key.movablePoint)
+                    {
+                        if (!entitySpawnPoints.ContainsKey(spawnP))
+                        {
+                            return false;
+                        }
+                        if (entitySpawnPoints[spawnP].eEntity == EEntity.Goat)
+                        {
+                            foreach (var neighbourSpawnP in spawnP.movablePoint)
+                            {
+                                if (!entitySpawnPoints.ContainsKey(spawnP) && AreCollinear(entityController.Key.transform, spawnP.transform, neighbourSpawnP.transform))
+                                {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+            Debug.Log(true);
+            return true;
         }
     }
 }

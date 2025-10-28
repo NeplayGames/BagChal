@@ -16,7 +16,6 @@ namespace NeplayGame.BagChal
                 {
                     if (hit.collider.TryGetComponent(out SpawnPoint spawnPoint))
                     {
-                    Debug.Log(hit.collider);
                         TouchEntity?.Invoke(spawnPoint);
                     }
                 }

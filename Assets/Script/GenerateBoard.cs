@@ -24,7 +24,7 @@ namespace NeplayGame.BagChal
             { 5, new List<int> { 0, 6, 10} },
             { 6, new List<int> { 0, 1,2, 5, 7,10, 11, 12 } },
             { 7, new List<int> { 2, 6, 8, 12 } },
-            { 8, new List<int> { 2, 3, 4, 7, 9,12, 13 ,12} },
+            { 8, new List<int> { 2, 3, 4, 7, 9,14, 13 ,12} },
             { 9, new List<int> { 4, 8, 14 } },
 
             { 10, new List<int> { 5,6, 11, 15,16 } },

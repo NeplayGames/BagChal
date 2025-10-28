@@ -17,17 +17,26 @@ namespace NeplayGame.BagChal
         private const int TOTAL_GOAT_TO_EAT = 5;
         private int totalGoatKill = 0;
         private EntityManager entityManager;
+
+
+
         void Start()
         {
             inputManager = new();
-            EntityManager entityManager = new EntityManager(new GenerateBoard(spawnPointGO, consecutiveDistance, lineMaterial), tiger, goat, uIManager, inputManager);
+            entityManager = new EntityManager(new GenerateBoard(spawnPointGO, consecutiveDistance, lineMaterial), tiger, goat, inputManager);
             entityManager.GoatKill += GoatKilled;
+            entityManager.OnChangeTurn += ChangeTurn;
+        }
+
+        private void ChangeTurn(EEntity eEntity)
+        {
+            uIManager.SetTurnInfoText(eEntity);
+            CheckGameOver();
         }
 
         private void GoatKilled()
         {
             totalGoatKill++;
-            CheckGameOver();
         }
 
         void Update()
@@ -37,18 +46,34 @@ namespace NeplayGame.BagChal
 
         public void CheckGameOver()
         {
-            if(totalGoatKill == TOTAL_GOAT_TO_EAT)
+            if (totalGoatKill == TOTAL_GOAT_TO_EAT)
             {
-                entityManager.GoatKill -= GoatKilled;
-                entityManager = null;
-                inputManager = null;
+                DeregisterEvents();
+                uIManager.SetGameOverText(EEntity.Tiger);
+                return;
+            }
+            if (entityManager.CheckTigerLock())
+            {
+                DeregisterEvents();
+                uIManager.SetGameOverText(EEntity.Goat);
+                return;
             }
         }
 
         void OnDestroy()
         {
-            if(entityManager != null)
+            if (entityManager != null)
+            {
+                DeregisterEvents();
+            }
+        }
+
+        private void DeregisterEvents()
+        {
             entityManager.GoatKill -= GoatKilled;
+            entityManager.OnChangeTurn -= ChangeTurn;
+            entityManager = null;
+            inputManager = null;
         }
     }
 }

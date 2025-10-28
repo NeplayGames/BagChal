@@ -1,19 +1,20 @@
+using System;
 using UnityEngine;
 
 namespace NeplayGame.BagChal.Entity
 {
     public abstract class EntityController : MonoBehaviour
     {
-        [SerializeField] private Animator animator;
-
+        [SerializeField] protected Animator animator;
+        public event Action MovementCompleted;
         public abstract EEntity eEntity { get; }
         private Vector3 startPosition;
         private Vector3 targetPosition;
         private float duration;
         private float elapsedTime;
-        private bool isMoving = false;
+        protected bool isMoving = false;
 
-        void Update()
+        protected virtual void Update()
         {
             if (isMoving)
             {
@@ -28,15 +29,17 @@ namespace NeplayGame.BagChal.Entity
                 {
                     isMoving = false;
                     animator.SetBool("Movement", false);
+                    MovementCompleted?.Invoke();
                 }
             }
         }
 
         public void MoveTo(Vector3 destination, float speed = 6)
         {
-            startPosition = transform.position;
-            targetPosition = destination;
 
+            startPosition = transform.position;
+            targetPosition = destination + Vector3.up;
+            transform.LookAt(targetPosition);
             // Calculate duration using distance / speed
             float distance = Vector3.Distance(startPosition, targetPosition);
             duration = distance / speed;
