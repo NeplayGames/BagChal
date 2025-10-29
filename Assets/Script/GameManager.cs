@@ -37,6 +37,7 @@ namespace NeplayGame.BagChal
         private void GoatKilled()
         {
             totalGoatKill++;
+            uIManager.SetGoatKillInfo(totalGoatKill);
         }
 
         void Update()

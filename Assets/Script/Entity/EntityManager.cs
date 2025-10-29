@@ -44,6 +44,7 @@ namespace NeplayGame.BagChal
 
         private void CanMoveNext()
         {
+            CurrentEntity = CurrentEntity == EEntity.Goat ? EEntity.Tiger : EEntity.Goat;
             inputManager.TouchEntity += CurrentTouchEntity;
         }
 
@@ -81,7 +82,6 @@ namespace NeplayGame.BagChal
                 entitySpawnPoints.Add(spawnPoint, entitySpawnPoints[obtainEntitySpawnPoint]);
                 entitySpawnPoints.Remove(obtainEntitySpawnPoint);
                 obtainEntitySpawnPoint = null;
-                CurrentEntity = CurrentEntity == EEntity.Goat ? EEntity.Tiger : EEntity.Goat;
                 inputManager.TouchEntity -= CurrentTouchEntity;
             }
         }

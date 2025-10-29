@@ -1,18 +1,25 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 namespace NeplayGame.BagChal.UI
 {
     public class MainMenuUI : MonoBehaviour
     {
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
+          [SerializeField] private Button startButton;
+
         void Start()
         {
-
+            startButton.onClick.AddListener(RestartGame);
         }
 
-        // Update is called once per frame
-        void Update()
+        private void RestartGame()
         {
-
+            SceneManager.LoadScene(1);
+        }
+        
+         void OnDestroy()
+        {
+            startButton.onClick.AddListener(RestartGame);
         }
     }
 }
