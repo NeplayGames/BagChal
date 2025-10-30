@@ -10,6 +10,7 @@ namespace NeplayGame.BagChal
     {
         private GameObject goat;
         private int totalGoat = 0;
+        private float speed = 10;
         private EEntity CurrentEntity
         {
             get
@@ -28,7 +29,7 @@ namespace NeplayGame.BagChal
         public event Action GoatKill;
         public event Action<EEntity> OnChangeTurn;
         private InputManager inputManager;
-        public EntityManager(GenerateBoard generateBoard, GameObject tiger, GameObject goat, InputManager inputManager)
+        public EntityManager(GenerateBoard generateBoard, GameObject tiger, GameObject goat, InputManager inputManager, float speed)
         {
             this.goat = goat;
             foreach (var tigerSpawnPoint in generateBoard.TigerSpawnPoint)
@@ -40,6 +41,7 @@ namespace NeplayGame.BagChal
             this.inputManager = inputManager;
             inputManager.TouchEntity += CurrentTouchEntity;
             CurrentEntity = EEntity.Goat;
+            this.speed = speed;
         }
 
         private void CanMoveNext()
@@ -70,7 +72,15 @@ namespace NeplayGame.BagChal
             if (entitySpawnPoints.ContainsKey(spawnPoint))
             {
                 EntityController entityController = entitySpawnPoints[spawnPoint];
-                obtainEntitySpawnPoint = entityController.eEntity == CurrentEntity ? spawnPoint : null;
+                entityController.StartGrowShrink();
+                if (entityController.eEntity == CurrentEntity)
+                {
+                    if (obtainEntitySpawnPoint != null)
+                        entitySpawnPoints[obtainEntitySpawnPoint].StopGrowShrink();
+                    obtainEntitySpawnPoint = spawnPoint;
+                }
+                else
+                    obtainEntitySpawnPoint = null;
                 return;
             }
             if (!obtainEntitySpawnPoint)
@@ -78,7 +88,7 @@ namespace NeplayGame.BagChal
 
             if (CanMove(obtainEntitySpawnPoint, spawnPoint))
             {
-                entitySpawnPoints[obtainEntitySpawnPoint].MoveTo(spawnPoint.transform.position);
+                entitySpawnPoints[obtainEntitySpawnPoint].MoveTo(spawnPoint.transform.position, speed);
                 entitySpawnPoints.Add(spawnPoint, entitySpawnPoints[obtainEntitySpawnPoint]);
                 entitySpawnPoints.Remove(obtainEntitySpawnPoint);
                 obtainEntitySpawnPoint = null;

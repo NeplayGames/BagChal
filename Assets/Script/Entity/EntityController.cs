@@ -6,6 +6,8 @@ namespace NeplayGame.BagChal.Entity
     public abstract class EntityController : MonoBehaviour
     {
         [SerializeField] protected Animator animator;
+        private bool isAnimating = false;
+        private float timeCounter = 0f;
         public event Action MovementCompleted;
         public abstract EEntity eEntity { get; }
         private Vector3 startPosition;
@@ -28,25 +30,49 @@ namespace NeplayGame.BagChal.Entity
                 if (t >= 1f)
                 {
                     isMoving = false;
-                    animator.SetBool("Movement", false);
+                    PlayAnimation("Movement", false);
                     MovementCompleted?.Invoke();
                 }
             }
+            if (!isAnimating) return;
+
+            timeCounter += Time.deltaTime * 2;
+            // Use sine wave to oscillate scale between smaller and larger
+            float scaleFactor = 1f + ((Mathf.Sin(timeCounter) + 1f) / 2f) * 0.5f;
+            transform.localScale = Vector3.one * scaleFactor;
+
+        }
+        public void StartGrowShrink()
+        {
+            isAnimating = true;
         }
 
+        // Stop the animation
+        public void StopGrowShrink()
+        {
+            isAnimating = false;
+            transform.localScale = Vector3.one;
+            timeCounter = 0f;
+        }
+
+        protected void PlayAnimation(string animationStr, bool animationBool)
+        {
+            if (!animator) return;
+            animator.SetBool(animationStr, animationBool);
+        }
         public void MoveTo(Vector3 destination, float speed = 6)
         {
-
+            StopGrowShrink();
             startPosition = transform.position;
             targetPosition = destination + Vector3.up;
-            transform.LookAt(targetPosition);
+            if (animator)
+                transform.LookAt(targetPosition);
             // Calculate duration using distance / speed
             float distance = Vector3.Distance(startPosition, targetPosition);
             duration = distance / speed;
-
             elapsedTime = 0f;
             isMoving = true;
-            animator.SetBool("Movement", true);
+            PlayAnimation("Movement", true);
         }
     }
 }

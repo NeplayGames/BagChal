@@ -4,12 +4,13 @@ namespace NeplayGame.BagChal.Entity
 {
     public class GoatEntity : EntityController
     {
+        [SerializeField] private float totalDiedTime = 1.5f;
         public override EEntity eEntity { get; } = EEntity.Goat;
         public event Action IsDead;
         public  void PlayDeathAnimation()
         {
-            animator.SetBool("Died", true);
-            Invoke(nameof(Died), 1.5f);
+             PlayAnimation("Died", true);
+            Invoke(nameof(Died), totalDiedTime);
         }
 
         private void Died()

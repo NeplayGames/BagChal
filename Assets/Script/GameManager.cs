@@ -10,6 +10,7 @@ namespace NeplayGame.BagChal
         [SerializeField] private GameObject spawnPointGO;
         [SerializeField] private GameObject tiger;
         [SerializeField] private GameObject goat;
+        [SerializeField, Range(6, 100)] private float speed = 6;
         [SerializeField] private Material lineMaterial;
         [SerializeField] private UIManager uIManager;
         [SerializeField, Range(1, 100)] private float consecutiveDistance;
@@ -23,7 +24,7 @@ namespace NeplayGame.BagChal
         void Start()
         {
             inputManager = new();
-            entityManager = new EntityManager(new GenerateBoard(spawnPointGO, consecutiveDistance, lineMaterial), tiger, goat, inputManager);
+            entityManager = new EntityManager(new GenerateBoard(spawnPointGO, consecutiveDistance, lineMaterial), tiger, goat, inputManager, speed);
             entityManager.GoatKill += GoatKilled;
             entityManager.OnChangeTurn += ChangeTurn;
         }
