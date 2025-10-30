@@ -12,6 +12,9 @@ namespace NeplayGame.BagChal.UI
         [SerializeField] private GameObject GameOverPanel;
         [SerializeField] private TextMeshProUGUI gameOverText;
         [SerializeField] private Button restartButton;
+        [SerializeField] private Sprite goatSprite;
+        [SerializeField] private Sprite tigerSprite;
+        [SerializeField] private Image gameWinObjImg;
 
         void Start()
         {
@@ -36,6 +39,7 @@ namespace NeplayGame.BagChal.UI
         {
             GameOverPanel.SetActive(true);
             gameOverText.text = winningTeam == EEntity.Goat ? "Goat Won" : "Tiger Won";
+            gameWinObjImg.sprite = winningTeam == EEntity.Goat ? goatSprite : tigerSprite;
         }
         
          void OnDestroy()

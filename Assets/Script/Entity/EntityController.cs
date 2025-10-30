@@ -62,6 +62,7 @@ namespace NeplayGame.BagChal.Entity
         }
         public void MoveTo(Vector3 destination, float speed = 6)
         {
+            SoundManager.Instance.PlayMovement();
             StopGrowShrink();
             startPosition = transform.position;
             targetPosition = destination + Vector3.up;

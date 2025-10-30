@@ -128,6 +128,7 @@ namespace NeplayGame.BagChal
         {
             EntityController entityController = entitySpawnPoints[spawnP];
             entitySpawnPoints.Remove(spawnP);
+            entityController.MovementCompleted -= CanMoveNext;
             //GameObject.Destroy(entityController.gameObject);
             GoatKill?.Invoke();
         }
@@ -168,6 +169,7 @@ namespace NeplayGame.BagChal
             EntityController entityController = GameObject.Instantiate(goat, spawnPoint.transform.position + Vector3.up, goat.transform.rotation).GetComponent<EntityController>();
             entitySpawnPoints.Add(spawnPoint, entityController);
             CurrentEntity = EEntity.Tiger;
+            entityController.MovementCompleted += CanMoveNext;
             totalGoat++;
         }
 
@@ -192,7 +194,7 @@ namespace NeplayGame.BagChal
                         {
                             foreach (var neighbourSpawnP in spawnP.movablePoint)
                             {
-                                if (!entitySpawnPoints.ContainsKey(spawnP) && AreCollinear(entityController.Key.transform, spawnP.transform, neighbourSpawnP.transform))
+                                if (!entitySpawnPoints.ContainsKey(neighbourSpawnP) && AreCollinear(entityController.Key.transform, spawnP.transform, neighbourSpawnP.transform))
                                 {
                                     return false;
                                 }

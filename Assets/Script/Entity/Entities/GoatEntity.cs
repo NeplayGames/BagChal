@@ -7,9 +7,10 @@ namespace NeplayGame.BagChal.Entity
         [SerializeField] private float totalDiedTime = 1.5f;
         public override EEntity eEntity { get; } = EEntity.Goat;
         public event Action IsDead;
-        public  void PlayDeathAnimation()
+        public void PlayDeathAnimation()
         {
-             PlayAnimation("Died", true);
+            PlayAnimation("Died", true);
+            SoundManager.Instance.PlayGoatKill();
             Invoke(nameof(Died), totalDiedTime);
         }
 
