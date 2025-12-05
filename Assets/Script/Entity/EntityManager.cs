@@ -20,14 +20,14 @@ namespace NeplayGame.BagChal
             set
             {
                 currentEntity = value;
-                OnChangeTurn?.Invoke(currentEntity);
+                OnChangeTurn?.Invoke(currentEntity, 20 - totalGoat);
             }
         }
         private EEntity currentEntity;
         private SpawnPoint obtainEntitySpawnPoint;
         Dictionary<SpawnPoint, EntityController> entitySpawnPoints = new();
         public event Action GoatKill;
-        public event Action<EEntity> OnChangeTurn;
+        public event Action<EEntity, int> OnChangeTurn;
         private InputManager inputManager;
         public EntityManager(GenerateBoard generateBoard, GameObject tiger, GameObject goat, InputManager inputManager, float speed)
         {
@@ -72,15 +72,18 @@ namespace NeplayGame.BagChal
             if (entitySpawnPoints.ContainsKey(spawnPoint))
             {
                 EntityController entityController = entitySpawnPoints[spawnPoint];
-                entityController.StartGrowShrink();
                 if (entityController.eEntity == CurrentEntity)
                 {
+                    entityController.StartGrowShrink();
                     if (obtainEntitySpawnPoint != null)
                         entitySpawnPoints[obtainEntitySpawnPoint].StopGrowShrink();
                     obtainEntitySpawnPoint = spawnPoint;
+                    Debug.Log(obtainEntitySpawnPoint);
                 }
                 else
+                {
                     obtainEntitySpawnPoint = null;
+                }
                 return;
             }
             if (!obtainEntitySpawnPoint)
@@ -166,11 +169,11 @@ namespace NeplayGame.BagChal
 
         private void InstantiateGoat(SpawnPoint spawnPoint)
         {
+            totalGoat++;
             EntityController entityController = GameObject.Instantiate(goat, spawnPoint.transform.position + Vector3.up, goat.transform.rotation).GetComponent<EntityController>();
             entitySpawnPoints.Add(spawnPoint, entityController);
             CurrentEntity = EEntity.Tiger;
             entityController.MovementCompleted += CanMoveNext;
-            totalGoat++;
         }
 
         public void Dispose()

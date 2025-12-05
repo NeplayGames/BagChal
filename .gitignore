@@ -11,10 +11,15 @@
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 *.log
-
+/BagChal_BurstDebugInformation_DoNotShip/
+/GoogleBuild_BackUpThisFolder_ButDontShipItWithYourGame/
 # By default unity supports Blender asset imports, *.blend1 blender files do not need to be commited to version control.
 *.blend1
 *.blend1.meta
+# Unity build output ignore
+GoogleBuild*
+*.symbols
+
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data

@@ -29,9 +29,9 @@ namespace NeplayGame.BagChal
             entityManager.OnChangeTurn += ChangeTurn;
         }
 
-        private void ChangeTurn(EEntity eEntity)
+        private void ChangeTurn(EEntity eEntity, int goatLeft)
         {
-            uIManager.SetTurnInfoText(eEntity);
+            uIManager.SetTurnInfoText(eEntity, goatLeft);
             CheckGameOver();
         }
 

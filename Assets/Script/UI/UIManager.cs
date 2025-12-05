@@ -9,6 +9,7 @@ namespace NeplayGame.BagChal.UI
     {
         [SerializeField] private TextMeshProUGUI turnInfoTMP;
         [SerializeField] private TextMeshProUGUI GoatKillTMP;
+        [SerializeField] private TextMeshProUGUI GoatLeftTMP;
         [SerializeField] private GameObject GameOverPanel;
         [SerializeField] private TextMeshProUGUI gameOverText;
         [SerializeField] private Button restartButton;
@@ -26,10 +27,12 @@ namespace NeplayGame.BagChal.UI
             SceneManager.LoadScene(0);
         }
 
-        public void SetTurnInfoText(EEntity eEntity)
+        public void SetTurnInfoText(EEntity eEntity, int goatLeft)
         {
             turnInfoTMP.text = eEntity == EEntity.Goat ? "Goat Turn" : "Tiger Turn";
+            GoatLeftTMP.text = $"{goatLeft}";
         }
+        
         public void SetGoatKillInfo(int goatKilled)
         {
             GoatKillTMP.text = $"{goatKilled}";
