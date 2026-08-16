@@ -6,6 +6,7 @@ namespace NeplayGame.BagChal
     {
         private SpawnPoint[] spawnObjs = new SpawnPoint[25];
         public SpawnPoint[] TigerSpawnPoint { get; private set; } = new SpawnPoint[4];
+        public IReadOnlyList<SpawnPoint> SpawnPoints => spawnObjs;
 
         public GenerateBoard(GameObject spawnPointGO, float distance, Material lineMaterial)
         {

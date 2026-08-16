@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
+using NeplayGame.BagChal.AI;
 using NeplayGame.BagChal.Entity;
-using NeplayGame.BagChal.UI;
-using Unity.VisualScripting;
 using UnityEngine;
 namespace NeplayGame.BagChal
 {
@@ -29,7 +28,11 @@ namespace NeplayGame.BagChal
         public event Action GoatKill;
         public event Action<EEntity, int> OnChangeTurn;
         private InputManager inputManager;
-        public EntityManager(GenerateBoard generateBoard, GameObject tiger, GameObject goat, InputManager inputManager, float speed)
+        private readonly EEntity aiEntity;
+        private readonly IBaghChalAI ai;
+        private readonly IReadOnlyList<SpawnPoint> boardPoints;
+
+        public EntityManager(GenerateBoard generateBoard, GameObject tiger, GameObject goat, InputManager inputManager, float speed, EEntity aiEntity = EEntity.None, AIDifficulty aiDifficulty = AIDifficulty.Medium)
         {
             this.goat = goat;
             foreach (var tigerSpawnPoint in generateBoard.TigerSpawnPoint)
@@ -39,19 +42,39 @@ namespace NeplayGame.BagChal
                 entityController.MovementCompleted += CanMoveNext;
             }
             this.inputManager = inputManager;
-            inputManager.TouchEntity += CurrentTouchEntity;
+            this.aiEntity = aiEntity;
+            ai = aiEntity switch
+            {
+                EEntity.Goat => new GoatAI(aiDifficulty),
+                EEntity.Tiger => new TigerAI(aiDifficulty),
+                _ => null
+            };
+            boardPoints = generateBoard.SpawnPoints;
             CurrentEntity = EEntity.Goat;
+            ConfigureInputForTurn();
             this.speed = speed;
         }
 
         private void CanMoveNext()
         {
             CurrentEntity = CurrentEntity == EEntity.Goat ? EEntity.Tiger : EEntity.Goat;
-            inputManager.TouchEntity += CurrentTouchEntity;
+            ConfigureInputForTurn();
+        }
+
+        private bool IsAITurn => aiEntity != EEntity.None && CurrentEntity == aiEntity;
+
+        private void ConfigureInputForTurn()
+        {
+            inputManager.TouchEntity -= CurrentTouchEntity;
+            if (!IsAITurn)
+                inputManager.TouchEntity += CurrentTouchEntity;
         }
 
         private void CurrentTouchEntity(SpawnPoint spawnPoint)
         {
+            if (IsAITurn)
+                return;
+
 
             if (totalGoat < 20)
             {
@@ -149,7 +172,6 @@ namespace NeplayGame.BagChal
 
             // Cross product in 2D -> scalar (z-component of 3D cross product)
             float cross = v1.x * v2.y - v1.y * v2.x;
-            Debug.Log(cross);
             // If cross = 0 (or very close), they're collinear
             return Mathf.Approximately(cross, 0f);
         }
@@ -174,7 +196,44 @@ namespace NeplayGame.BagChal
             entitySpawnPoints.Add(spawnPoint, entityController);
             CurrentEntity = EEntity.Tiger;
             entityController.MovementCompleted += CanMoveNext;
+            ConfigureInputForTurn();
         }
+
+        public bool PerformAITurn()
+        {
+            if (!IsAITurn || ai == null)
+                return false;
+
+            AIMove selectedMove = ai.ChooseMove(
+                Mathf.Max(0, 20 - totalGoat),
+                boardPoints,
+                entitySpawnPoints);
+
+            if (!selectedMove.IsValid)
+                return false;
+
+            if (selectedMove.IsPlacement)
+                InstantiateGoat(selectedMove.Destination);
+            else
+                MoveEntity(selectedMove.Origin, selectedMove.Destination, selectedMove.CapturedGoat);
+
+            return true;
+        }
+
+        private void MoveEntity(SpawnPoint origin, SpawnPoint destination, SpawnPoint capturedGoat)
+        {
+            EntityController controller = entitySpawnPoints[origin];
+            if (capturedGoat != null)
+            {
+                ((TigerEntity)controller).SetGoat((GoatEntity)entitySpawnPoints[capturedGoat]);
+                KillGoat(capturedGoat);
+            }
+
+            controller.MoveTo(destination.transform.position, speed);
+            entitySpawnPoints.Add(destination, controller);
+            entitySpawnPoints.Remove(origin);
+        }
+
 
         public void Dispose()
         {
